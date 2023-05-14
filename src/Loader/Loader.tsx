@@ -1,6 +1,8 @@
+import "./Loader.css";
+
 const Loader = () => (
-    <div className="autocomplete-loader">
-        <div className="loader" />
+    <div className="loader">
+        <div className="spinner" />
     </div>
 );
 

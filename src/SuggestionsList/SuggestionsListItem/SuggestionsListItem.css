@@ -1,0 +1,10 @@
+.active,
+li:hover {
+    background-color: rgb(235, 235, 235);
+    cursor: default;
+}
+
+li {
+    text-align: left;
+    padding: 4px 16px;
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CharacterModel } from "../models/CharacterModel";
+import { ALPHABET_REGEX, MULTIPLE_SPACES_REGEX, NON_ALPHABET_REGEX } from "../utils/regexConstants";
 
 interface AutocompleteHookProps {
     onSelect: (selected: CharacterModel) => void;
@@ -11,6 +12,7 @@ interface AutocompleteHook {
     suggestions: CharacterModel[];
     activeIndex: number;
     loading: boolean;
+    noResults: boolean;
     inputRef: React.MutableRefObject<HTMLInputElement | null>;
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -23,6 +25,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
     const [activeIndex, setActiveIndex] = useState<number>(-1);
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
+    const [noResults, setNoResults] = useState<boolean>(false)
     const [isRequestActive, setIsRequestActive] = useState<boolean>(false);
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -38,27 +41,30 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
     useLayoutEffect(() => {
         if (searchTerm === "") {
             setSuggestions([]);
+            setNoResults(false)
         }
         lastSearchTermRef.current = searchTerm;
     }, [searchTerm]);
 
     const onSearch = useCallback((searchTerm: string) => {
-        const regex = /[a-zA-Z]/;
-        if (regex.test(searchTerm)) {
-            if (isRequestActive) { // check if a request is already active
+        if (ALPHABET_REGEX.test(searchTerm)) {
+            if (isRequestActive) {
                 return;
             }
-            setIsRequestActive(true); // set request active
+            setIsRequestActive(true);
             setLoading(true);
             fetch(`https://rickandmortyapi.com/api/character/?name=${searchTerm.toLowerCase()}`)
                 .then((response) => {
                     if (response.ok) {
                         return response.json();
                     } else {
+                        setNoResults(true);
                         throw new Error("Network response was not ok");
                     }
                 })
                 .then((data) => {
+                    if (data.results.length === 0) setNoResults(true);
+                    setNoResults(false);
                     const regex = new RegExp(`(${searchTerm})`, "gi");
                     setSuggestions(
                         data.results
@@ -75,7 +81,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
                 })
                 .finally(() => {
                     setLoading(false);
-                    setIsRequestActive(false); // set request inactive
+                    setIsRequestActive(false);
                 });
         } else {
             setSuggestions([]);
@@ -116,7 +122,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
     };
 
     const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.value.replace(/[^A-Za-z\s]/g, '').replace(/\s{2,}/g, ' ');
+        const newValue = event.target.value.replace(NON_ALPHABET_REGEX, '').replace(MULTIPLE_SPACES_REGEX, ' ');
         setSearchTerm(newValue);
     };
 
@@ -155,6 +161,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
         suggestions,
         activeIndex,
         loading,
+        noResults,
         inputRef,
         onInputChange,
         onKeyDown,
