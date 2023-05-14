@@ -1,18 +1,18 @@
 import { CharacterModel } from "../../models/CharacterModel";
-import Character from "./Character";
+import Suggestion from "./Suggestion";
 
 type SuggestionsListItemProps = {
     suggestion: CharacterModel;
     debouncedValue: string;
     isActive: boolean;
-    onClick: () => void;
+    onSelect: () => void;
 };
 
 const SuggestionsListItem: React.FC<SuggestionsListItemProps> = ({
     suggestion,
     debouncedValue,
     isActive,
-    onClick,
+    onSelect,
 }) => {
     const ariaSelected = isActive ? "true" : "false";
     return (
@@ -22,9 +22,9 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = ({
             tabIndex={0}
             aria-selected={ariaSelected}
             className={isActive ? "active" : ""}
-            onClick={onClick}
+            onClick={onSelect}
         >
-            <Character character={suggestion} debouncedValue={debouncedValue} />
+            <Suggestion suggestion={suggestion} debouncedValue={debouncedValue} />
         </li>
     );
 };

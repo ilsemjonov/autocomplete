@@ -34,6 +34,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
             inputRef.current.focus();
         }
     }, []);
+
     useLayoutEffect(() => {
         if (searchTerm === "") {
             setSuggestions([]);

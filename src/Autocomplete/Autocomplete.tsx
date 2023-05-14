@@ -49,7 +49,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect }) => {
                     suggestions={suggestions}
                     debouncedValue={debouncedSearchTerm}
                     activeIndex={activeIndex}
-                    onClick={handleSelect}
+                    onSelect={handleSelect}
                 />
             )}
         </div>
