@@ -1,9 +1,10 @@
 import React from "react";
 import "./App.css";
-import Autocomplete, { Character } from "./Autocomplete/Autocomplete";
+import Autocomplete from "./Autocomplete/Autocomplete";
+import { CharacterModel } from "./models/CharacterModel";
 
 const App: React.FC = () => {
-    const handleSelect = (selected: Character) => {
+    const handleSelect = (selected: CharacterModel) => {
         console.log(selected);
     };
 
