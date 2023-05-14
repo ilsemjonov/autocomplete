@@ -35,8 +35,10 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect }) => {
                 onChange={onInputChange}
                 onKeyDown={onKeyDown}
                 aria-label="Search for suggestions"
-                aria-autocomplete="list"
+                aria-autocomplete="both"
                 aria-controls="suggestions-list"
+                role="combobox"
+                aria-haspopup="listbox"
             />
             <SuggestionsList
                 suggestions={suggestions}

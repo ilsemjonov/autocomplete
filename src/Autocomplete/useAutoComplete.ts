@@ -75,8 +75,7 @@ export const useAutocomplete = ({ onSelect }: AutocompleteHookProps): Autocomple
                             .sort((a: CharacterModel, b: CharacterModel) => a.name.localeCompare(b.name))
                     );
                 })
-                .catch((error) => {
-                    console.error(error);
+                .catch(() => {
                     setSuggestions([]);
                 })
                 .finally(() => {
