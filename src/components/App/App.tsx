@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import Autocomplete from "../Autocomplete/Autocomplete";
 import { CharacterModel } from "../../models/CharacterModel";
+import { customFormatter } from "../../functions/customFormatter";
 
 const App: React.FC = () => {
     const handleSelect = (selected: CharacterModel) => {
@@ -11,7 +12,10 @@ const App: React.FC = () => {
     return (
         <div className="app">
             <h1>Autocomplete</h1>
-            <Autocomplete onSelect={handleSelect} />
+            <Autocomplete
+                onSelect={handleSelect}
+                formatter={customFormatter}
+            />
         </div>
     );
 };

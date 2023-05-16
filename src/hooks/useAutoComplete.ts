@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CharacterModel } from "../models/CharacterModel";
 import { ALPHANUM_REGEX, EMPTY_OR_SPACES_REGEX } from "../utils/regexConstants";
-import { formatValue } from "../functions/formatValue";
+import useAxiosFetch from "./useAxiosFetch";
+import { defaultFormatter } from "../functions/defaultFormatter";
 
 const searchApiUrl = process.env.REACT_APP_SEARCH_API_URL;
 
 interface AutocompleteHookProps {
     onSelect: (selected: CharacterModel) => void;
-    onlyAlphaNum?: boolean;
+    formatter?: (value: string) => string;
 }
 
 interface AutocompleteHook {
@@ -23,7 +24,7 @@ interface AutocompleteHook {
     handleSelect: (selected: CharacterModel) => void;
 }
 
-export const useAutocomplete = ({ onSelect, onlyAlphaNum = true }: AutocompleteHookProps): AutocompleteHook => {
+export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: AutocompleteHookProps): AutocompleteHook => {
     const [searchTerm, setSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState<CharacterModel[]>([]);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -55,6 +56,15 @@ export const useAutocomplete = ({ onSelect, onlyAlphaNum = true }: AutocompleteH
     useEffect(() => {
         setAdjustedSearchTerm(searchTerm.toLowerCase().trim())
     }, [searchTerm])
+
+    // const { error, loading, data } = useAxiosFetch<CharacterModel[]>(`${searchApiUrl}/api/character/?name=${searchTerm}`);
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    //   }
+    
+    //   if (error) {
+    //     return <div>Error: {error.message}</div>;
+    //   }
 
     const onSearch = useCallback((searchTerm: string) => {
         // if (ALPHANUM_REGEX.test(searchTerm)) {
@@ -90,7 +100,7 @@ export const useAutocomplete = ({ onSelect, onlyAlphaNum = true }: AutocompleteH
         // } else {
         //     setSuggestions([]);
         // }
-    }, [loading, searchApiUrl])
+    }, [loading])
 
     useLayoutEffect(() => {
         const debounce = (prevValue: string, value: string, delay: number) => {
@@ -127,7 +137,7 @@ export const useAutocomplete = ({ onSelect, onlyAlphaNum = true }: AutocompleteH
     };
 
     const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(formatValue({ value: event.target.value, onlyAlphaNum }));
+        setSearchTerm(formatter(event.target.value));
     };
 
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

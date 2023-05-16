@@ -39,23 +39,25 @@ const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
             {loading && (
                 <Loader />
             )}
-            {isListVisible && <ul
-                id="suggestions-list"
-                role="listbox"
-                aria-labelledby="autocomplete-input"
-                aria-expanded={suggestions.length > 0}
-            >
+            {isListVisible && (
+                <ul
+                    id="suggestions-list"
+                    role="listbox"
+                    aria-labelledby="autocomplete-input"
+                    aria-expanded={suggestions.length > 0}
+                >
 
-                {suggestions.map((suggestion, index) => (
-                    <SuggestionsListItem
-                        key={suggestion.id}
-                        suggestion={suggestion}
-                        debouncedSearchTerm={debouncedSearchTerm}
-                        isActive={index === activeIndex}
-                        onSelect={() => onSelect(suggestion)}
-                    />
-                ))}
-            </ul>}
+                    {suggestions.map((suggestion, index) => (
+                        <SuggestionsListItem
+                            key={suggestion.id}
+                            suggestion={suggestion}
+                            debouncedSearchTerm={debouncedSearchTerm}
+                            isActive={index === activeIndex}
+                            onSelect={() => onSelect(suggestion)}
+                        />
+                    ))}
+                </ul>
+            )}
         </div>
     )
 };
