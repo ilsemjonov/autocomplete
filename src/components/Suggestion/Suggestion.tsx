@@ -5,11 +5,11 @@ import "./Suggestion.css";
 
 type SuggestionProps = {
     suggestion: CharacterModel;
-    debouncedSearchTerm: string;
+    searchTerm: string;
 };
 
-const Suggestion: React.FC<SuggestionProps> = ({ suggestion, debouncedSearchTerm }) => {
-    const highlightedName = highlightParts(suggestion.name, debouncedSearchTerm);
+const Suggestion: React.FC<SuggestionProps> = ({ suggestion, searchTerm }) => {
+    const highlightedName = highlightParts(suggestion.name, searchTerm);
 
     return <span>{highlightedName}</span>;
 };

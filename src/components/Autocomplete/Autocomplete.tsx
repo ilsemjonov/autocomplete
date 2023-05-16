@@ -14,11 +14,9 @@ interface AutocompleteProps {
 const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
     const {
         searchTerm,
-        debouncedSearchTerm,
         suggestions,
         activeIndex,
         loading,
-        isDropDownVisible,
         inputRef,
         onInputChange,
         onKeyDown,
@@ -46,11 +44,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
                     <SuggestionsList
                         suggestions={suggestions}
                         searchTerm={searchTerm}
-                        debouncedSearchTerm={debouncedSearchTerm}
                         activeIndex={activeIndex}
                         onSelect={handleSelect}
                         loading={loading}
-                        isDropDownVisible={isDropDownVisible}
                     />
                 </Suspense>
             )}

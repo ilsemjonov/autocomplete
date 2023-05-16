@@ -5,7 +5,7 @@ import "./SuggestionsListItem.css";
 
 type SuggestionsListItemProps = {
     suggestion: CharacterModel;
-    debouncedSearchTerm: string;
+    searchTerm: string;
     isActive: boolean;
     onSelect: () => void;
 };
@@ -13,7 +13,7 @@ type SuggestionsListItemProps = {
 const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
     const {
         suggestion,
-        debouncedSearchTerm,
+        searchTerm,
         isActive,
         onSelect,
     } = props;
@@ -30,7 +30,7 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
             className={className}
             onClick={onSelect}
         >
-            <Suggestion suggestion={suggestion} debouncedSearchTerm={debouncedSearchTerm} />
+            <Suggestion suggestion={suggestion} searchTerm={searchTerm} />
         </li>
     );
 };
