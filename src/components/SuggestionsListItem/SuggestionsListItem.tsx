@@ -1,5 +1,5 @@
 import { CharacterModel } from "../../models/CharacterModel";
-import Suggestion from "./Suggestion/Suggestion";
+import Suggestion from "../Suggestion/Suggestion";
 
 import "./SuggestionsListItem.css";
 

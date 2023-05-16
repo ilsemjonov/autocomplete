@@ -1,5 +1,5 @@
-import { CharacterModel } from "../models/CharacterModel";
-import SuggestionsListItem from "./SuggestionsListItem/SuggestionsListItem";
+import { CharacterModel } from "../../models/CharacterModel";
+import SuggestionsListItem from "../SuggestionsListItem/SuggestionsListItem";
 import NoResultsFound from "../NoResultsFound/NoResultsFound";
 import Loader from "../Loader/Loader";
 

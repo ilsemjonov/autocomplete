@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { CharacterModel } from "../models/CharacterModel";
-import { ALPHABET_REGEX, MULTIPLE_SPACES_REGEX, NON_ALPHABET_REGEX } from "../utils/regexConstants";
+import { CharacterModel } from "../../models/CharacterModel";
+import { ALPHABET_REGEX, MULTIPLE_SPACES_REGEX, NON_ALPHABET_REGEX } from "../../utils/regexConstants";
 
 interface AutocompleteHookProps {
     onSelect: (selected: CharacterModel) => void;

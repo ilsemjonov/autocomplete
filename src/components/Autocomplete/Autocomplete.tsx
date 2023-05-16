@@ -1,10 +1,10 @@
-import { CharacterModel } from "../models/CharacterModel";
+import { CharacterModel } from "../../models/CharacterModel";
 import SuggestionsList from "../SuggestionsList/SuggestionsList";
 import { useAutocomplete } from "./useAutoComplete";
 
 import "./Autocomplete.css";
 
-type AutocompleteProps = {
+interface AutocompleteProps {
     onSelect: (selected: CharacterModel) => void;
 };
 
@@ -36,6 +36,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect }) => {
                 onKeyDown={onKeyDown}
                 aria-label="Search for suggestions"
                 aria-autocomplete="list"
+                autoFocus
             />
             <SuggestionsList
                 suggestions={suggestions}

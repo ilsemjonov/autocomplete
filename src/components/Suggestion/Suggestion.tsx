@@ -1,5 +1,5 @@
-import { highlightParts } from "../../../functions/highlightParts";
-import { CharacterModel } from "../../../models/CharacterModel";
+import { highlightParts } from "../../functions/highlightParts";
+import { CharacterModel } from "../../models/CharacterModel";
 
 import "./Suggestion.css";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
-import Autocomplete from "./Autocomplete/Autocomplete";
-import { CharacterModel } from "./models/CharacterModel";
+import Autocomplete from "../Autocomplete/Autocomplete";
+import { CharacterModel } from "../../models/CharacterModel";
 
 const App: React.FC = () => {
     const handleSelect = (selected: CharacterModel) => {
