@@ -7,48 +7,57 @@ import "./SuggestionsList.css";
 
 type SuggestionsListProps = {
     suggestions: CharacterModel[];
+    searchTerm: string;
     debouncedSearchTerm: string;
     activeIndex: number;
     onSelect: (selected: CharacterModel) => void;
     loading: boolean;
-    noResults: boolean;
+    isDropDownVisible: boolean;
 };
 
 const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
     const {
         suggestions,
+        searchTerm,
         debouncedSearchTerm,
         activeIndex,
         onSelect,
         loading,
-        noResults
+        isDropDownVisible
     } = props;
 
-    return <div className="list-container">
-        {noResults && !loading && (
-            <NoResultsFound />
-        )}
-        {loading && (
-            <Loader />
-        )}
-        {!loading && suggestions.length > 0 && <ul
-            id="suggestions-list"
-            role="listbox"
-            aria-labelledby="autocomplete-input"
-            aria-expanded={suggestions.length > 0}
-        >
+    if (!isDropDownVisible) return null;
 
-            {suggestions.map((suggestion, index) => (
-                <SuggestionsListItem
-                    key={suggestion.id}
-                    suggestion={suggestion}
-                    debouncedSearchTerm={debouncedSearchTerm}
-                    isActive={index === activeIndex}
-                    onSelect={() => onSelect(suggestion)}
-                />
-            ))}
-        </ul>}
-    </div>
+    const isNoResultsVisible = searchTerm && debouncedSearchTerm && suggestions.length === 0 && !loading;
+    const isListVisible = !loading && suggestions.length > 0;
+
+    return (
+        <div className="list-container">
+            {isNoResultsVisible && (
+                <NoResultsFound />
+            )}
+            {loading && (
+                <Loader />
+            )}
+            {isListVisible && <ul
+                id="suggestions-list"
+                role="listbox"
+                aria-labelledby="autocomplete-input"
+                aria-expanded={suggestions.length > 0}
+            >
+
+                {suggestions.map((suggestion, index) => (
+                    <SuggestionsListItem
+                        key={suggestion.id}
+                        suggestion={suggestion}
+                        debouncedSearchTerm={debouncedSearchTerm}
+                        isActive={index === activeIndex}
+                        onSelect={() => onSelect(suggestion)}
+                    />
+                ))}
+            </ul>}
+        </div>
+    )
 };
 
 export default SuggestionsList;

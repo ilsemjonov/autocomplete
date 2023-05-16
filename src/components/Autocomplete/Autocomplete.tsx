@@ -1,26 +1,27 @@
 import { CharacterModel } from "../../models/CharacterModel";
 import SuggestionsList from "../SuggestionsList/SuggestionsList";
-import { useAutocomplete } from "./useAutoComplete";
+import { useAutocomplete } from "../../hooks/useAutoComplete";
 
 import "./Autocomplete.css";
 
 interface AutocompleteProps {
     onSelect: (selected: CharacterModel) => void;
+    onlyAlphaNum?: boolean;
 };
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect }) => {
+const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, onlyAlphaNum }) => {
     const {
         searchTerm,
         debouncedSearchTerm,
         suggestions,
         activeIndex,
         loading,
-        noResults,
+        isDropDownVisible,
         inputRef,
         onInputChange,
         onKeyDown,
         handleSelect
-    } = useAutocomplete({ onSelect });
+    } = useAutocomplete({ onSelect, onlyAlphaNum });
 
     return (
         <div className="autocomplete-container">
@@ -40,11 +41,12 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect }) => {
             />
             <SuggestionsList
                 suggestions={suggestions}
+                searchTerm={searchTerm}
                 debouncedSearchTerm={debouncedSearchTerm}
                 activeIndex={activeIndex}
                 onSelect={handleSelect}
                 loading={loading}
-                noResults={noResults}
+                isDropDownVisible={isDropDownVisible}
             />
         </div>
     );
