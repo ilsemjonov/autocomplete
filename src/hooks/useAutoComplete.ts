@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { CharacterModel } from "../models/CharacterModel";
 import { useDebouncedFetch } from "./useDebouncedFetch";
@@ -22,6 +22,8 @@ interface AutocompleteHook {
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
     handleSelect: (selected: CharacterModel) => void;
     isHighlightEnabled: boolean;
+    dropdownRef: MutableRefObject<HTMLDivElement | null>;
+    handleDropdownScroll: (e: any) => void;
 }
 
 interface Response<T> {
@@ -41,11 +43,15 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
     const [activeIndex, setActiveIndex] = useState<number>(-1);
     const [urlSearchTerm, setUrlSearchTerm] = useState<string>('');
     const [selectedItem, setSelectedItem] = useState<string>('');
+    const [page, setPage] = useState<number>(1);
+
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const prevScrollTopRef = useRef<number>(0);
 
     const encodedSearchTerm = encodeURIComponent(urlSearchTerm);
 
     const fetchUrl = urlSearchTerm && searchTerm !== selectedItem
-        ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}`
+        ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}&page=${page}`
         : '';
 
     const { error, loading, data } = useDebouncedFetch<Response<CharacterModel[]>>(fetchUrl, delay);
@@ -53,8 +59,9 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
 
     const handleSelect = (selected: CharacterModel) => {
         setSearchTerm(selected.name);
-        setSuggestions(undefined);
         setSelectedItem(selected.name);
+        setSuggestions(undefined);
+        setPage(1);
         onSelect(selected);
     };
 
@@ -99,6 +106,8 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
 
     useEffect(() => {
         setActiveIndex(-1);
+        setPage(1);
+        setSuggestions(undefined);
         if (urlSearchTerm === '') {
             setSuggestions(undefined);
         }
@@ -110,18 +119,43 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
     }, [searchTerm, selectedItem])
 
     useEffect(() => {
-        if (error) {
+        if (error && page === 1) {
             setSuggestions([]);
         }
     }, [error])
 
     useEffect(() => {
         if (results) {
-            setSuggestions(
-                results.sort((a: CharacterModel, b: CharacterModel) => a.name.localeCompare(b.name))
-            );
+            setSuggestions((prevSuggestions) => {
+                if (prevSuggestions) {
+                    if (dropdownRef.current) {
+                        dropdownRef.current.scrollTop = prevScrollTopRef.current;
+                    }
+                    return [
+                        ...prevSuggestions,
+                        ...results.sort((a: CharacterModel, b: CharacterModel) =>
+                            a.name.localeCompare(b.name)
+                        ),
+                    ];
+                } else {
+                    return results.sort((a: CharacterModel, b: CharacterModel) =>
+                        a.name.localeCompare(b.name)
+                    );
+                }
+            });
         }
     }, [results])
+
+    const handleDropdownScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+        if (scrollTop && clientHeight && scrollTop + clientHeight === scrollHeight) {
+            if (prevScrollTopRef.current !== scrollTop) {
+                setPage(prevPage => prevPage + 1);
+                prevScrollTopRef.current = scrollTop;
+            }
+        }
+    }, []);
 
     return {
         searchTerm,
@@ -131,6 +165,8 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         onInputChange,
         onKeyDown,
         handleSelect,
-        isHighlightEnabled
+        isHighlightEnabled,
+        dropdownRef,
+        handleDropdownScroll
     }
 };

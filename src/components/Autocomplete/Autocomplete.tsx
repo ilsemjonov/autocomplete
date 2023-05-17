@@ -25,7 +25,9 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         onInputChange,
         onKeyDown,
         handleSelect,
-        isHighlightEnabled
+        isHighlightEnabled,
+        dropdownRef,
+        handleDropdownScroll
     } = useAutocomplete({ onSelect, formatter, delay, enableHighlight });
 
     return (
@@ -43,18 +45,18 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                 aria-autocomplete='list'
                 autoFocus
             />
-            {searchTerm && (
-                <Suspense fallback={null}>
-                    <SuggestionsList
-                        suggestions={suggestions}
-                        searchTerm={searchTerm}
-                        activeIndex={activeIndex}
-                        onSelect={handleSelect}
-                        loading={loading}
-                        isHighlightEnabled={isHighlightEnabled}
-                    />
-                </Suspense>
-            )}
+            <Suspense fallback={null}>
+                <SuggestionsList
+                    ref={dropdownRef}
+                    suggestions={suggestions}
+                    searchTerm={searchTerm}
+                    activeIndex={activeIndex}
+                    onSelect={handleSelect}
+                    loading={loading}
+                    isHighlightEnabled={isHighlightEnabled}
+                    handleDropdownScroll={handleDropdownScroll}
+                />
+            </Suspense>
         </div>
     );
 }

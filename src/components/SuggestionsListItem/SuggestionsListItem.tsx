@@ -30,7 +30,6 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
     useEffect(() => {
         if (isActive && focusedItemRef.current) {
             focusedItemRef.current.scrollIntoView({
-                behavior: 'smooth',
                 block: 'center',
                 inline: 'center',
             });

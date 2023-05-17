@@ -36,7 +36,7 @@ describe('Autocomplete', () => {
 
         await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
         expect(axios.get).toHaveBeenCalledWith(
-            'https://rickandmortyapi.com/api/character/?name=rick'
+            'https://rickandmortyapi.com/api/character/?name=rick&page=1'
         );
 
         const suggestionsList = getByRole('listbox');

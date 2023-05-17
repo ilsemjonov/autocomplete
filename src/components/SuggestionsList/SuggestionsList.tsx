@@ -1,3 +1,5 @@
+import { MutableRefObject, forwardRef } from "react";
+
 import { CharacterModel } from "../../models/CharacterModel";
 import SuggestionsListItem from "../SuggestionsListItem/SuggestionsListItem";
 import NoResultsFound from "../NoResultsFound/NoResultsFound";
@@ -12,53 +14,53 @@ type SuggestionsListProps = {
     onSelect: (selected: CharacterModel) => void;
     loading: boolean;
     isHighlightEnabled: boolean;
+    ref?: MutableRefObject<HTMLDivElement | null>;
+    handleDropdownScroll: (e: any) => void;
 };
 
-const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
+const SuggestionsList: React.ForwardRefRenderFunction<
+    HTMLDivElement,
+    SuggestionsListProps
+> = (props, ref) => {
     const {
         suggestions,
         searchTerm,
         activeIndex,
         onSelect,
         loading,
-        isHighlightEnabled
+        isHighlightEnabled,
+        handleDropdownScroll
     } = props;
 
-    if (!suggestions) return null;
-
-    const isNoResults = suggestions.length === 0 && !loading;
-    const isResults = !loading && suggestions.length > 0;
+    const isNoResults = suggestions?.length === 0 && !loading;
 
     return (
-        <div className="list-container">
-            {isNoResults && (
-                <NoResultsFound />
-            )}
-            {loading && (
-                <Loader />
-            )}
-            {isResults && (
-                <ul
-                    id="suggestions-list"
-                    role="listbox"
-                    aria-labelledby="autocomplete-input"
-                    aria-expanded={suggestions.length > 0}
-                >
-
-                    {suggestions?.map((suggestion, index) => (
-                        <SuggestionsListItem
-                            key={suggestion.id}
-                            suggestion={suggestion}
-                            searchTerm={searchTerm}
-                            isActive={index === activeIndex}
-                            onSelect={() => onSelect(suggestion)}
-                            isHighlightEnabled={isHighlightEnabled}
-                        />
-                    ))}
-                </ul>
-            )}
+        <div ref={ref} className="list-container" onScroll={handleDropdownScroll}>
+            <ul
+                id="suggestions-list"
+                role="listbox"
+                aria-labelledby="autocomplete-input"
+                aria-expanded={(suggestions && suggestions.length > 0) || false}
+            >
+                {suggestions && suggestions.map((suggestion, index) => (
+                    <SuggestionsListItem
+                        key={suggestion.id}
+                        suggestion={suggestion}
+                        searchTerm={searchTerm}
+                        isActive={index === activeIndex}
+                        onSelect={() => onSelect(suggestion)}
+                        isHighlightEnabled={isHighlightEnabled}
+                    />
+                ))}
+                {loading && (
+                    <Loader />
+                )}
+                {isNoResults && (
+                    <NoResultsFound />
+                )}
+            </ul>
         </div>
     )
 };
 
-export default SuggestionsList;
+export default forwardRef<HTMLDivElement, SuggestionsListProps>(SuggestionsList);
