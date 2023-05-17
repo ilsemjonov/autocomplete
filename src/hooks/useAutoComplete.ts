@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { CharacterModel } from "../models/CharacterModel";
+import { useEffect, useState } from "react";
 
+import { CharacterModel } from "../models/CharacterModel";
 import { useDebouncedFetch } from "./useDebouncedFetch";
 import { defaultFormatter } from "../functions/defaultFormatter";
 
@@ -26,13 +26,14 @@ interface Response<T> {
 }
 
 export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: AutocompleteHookProps): AutocompleteHook => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState<string>('');
     const [suggestions, setSuggestions] = useState<CharacterModel[] | undefined>(undefined);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
-    const [adjustedSearchTerm, setAdjustedSearchTerm] = useState<string>('')
+    const [urlSearchTerm, setUrlSearchTerm] = useState<string>('');
+    const [selectedItem, setSelectedItem] = useState<string>('');
 
-    const encodedUrl = adjustedSearchTerm
-        ? `${searchApiUrl}/api/character/?name=${encodeURIComponent(adjustedSearchTerm)}`
+    const encodedUrl = urlSearchTerm && searchTerm !== selectedItem
+        ? `${searchApiUrl}/api/character/?name=${encodeURIComponent(urlSearchTerm)}`
         : '';
 
     const { error, loading, data } = useDebouncedFetch<Response<CharacterModel[]>>(encodedUrl, 500);
@@ -41,6 +42,7 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
     const handleSelect = (selected: CharacterModel) => {
         setSearchTerm(selected.name);
         setSuggestions(undefined);
+        setSelectedItem(selected.name);
         onSelect(selected);
     };
 
@@ -85,14 +87,15 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
 
     useEffect(() => {
         setActiveIndex(-1);
-        if (adjustedSearchTerm === '') {
+        if (urlSearchTerm === '') {
             setSuggestions(undefined);
         }
-    }, [adjustedSearchTerm]);
+    }, [urlSearchTerm]);
 
     useEffect(() => {
-        setAdjustedSearchTerm(searchTerm.toLowerCase().trim())
-    }, [searchTerm])
+        setUrlSearchTerm(searchTerm.toLowerCase().trim());
+        if (searchTerm !== selectedItem) setSelectedItem('');
+    }, [searchTerm, selectedItem])
 
     useEffect(() => {
         if (error) {
@@ -102,14 +105,8 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
 
     useEffect(() => {
         if (results) {
-            const regex = new RegExp(`(${adjustedSearchTerm})`, "gi");
             setSuggestions(
-                results
-                    .map((character: CharacterModel) => ({
-                        ...character,
-                        searchTermIndex: character.name.search(regex),
-                    }))
-                    .sort((a: CharacterModel, b: CharacterModel) => a.name.localeCompare(b.name))
+                results.sort((a: CharacterModel, b: CharacterModel) => a.name.localeCompare(b.name))
             );
         }
     }, [results])

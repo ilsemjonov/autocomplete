@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+
 import { CharacterModel } from '../../models/CharacterModel';
 import { useAutocomplete } from '../../hooks/useAutoComplete';
 

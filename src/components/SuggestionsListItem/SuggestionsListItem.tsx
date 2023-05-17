@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+
 import { CharacterModel } from "../../models/CharacterModel";
 import Suggestion from "../Suggestion/Suggestion";
 
