@@ -24,18 +24,18 @@ const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
 
     if (!suggestions) return null;
 
-    const isNoResultsVisible = searchTerm && suggestions?.length === 0 && !loading;
-    const isListVisible = !loading && suggestions?.length && suggestions?.length > 0;
+    const isNoResults = suggestions.length === 0 && !loading;
+    const isResults = !loading && suggestions.length > 0;
 
     return (
         <div className="list-container">
-            {isNoResultsVisible && (
+            {isNoResults && (
                 <NoResultsFound />
             )}
             {loading && (
                 <Loader />
             )}
-            {isListVisible && (
+            {isResults && (
                 <ul
                     id="suggestions-list"
                     role="listbox"

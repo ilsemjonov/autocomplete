@@ -16,7 +16,6 @@ interface AutocompleteHook {
     suggestions: CharacterModel[] | undefined;
     activeIndex: number;
     loading: boolean;
-    inputRef: React.MutableRefObject<HTMLInputElement | null>;
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
     handleSelect: (selected: CharacterModel) => void;
@@ -31,8 +30,6 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
     const [suggestions, setSuggestions] = useState<CharacterModel[] | undefined>(undefined);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
     const [adjustedSearchTerm, setAdjustedSearchTerm] = useState<string>('')
-
-    const inputRef = useRef<HTMLInputElement>(null);
 
     const encodedUrl = adjustedSearchTerm
         ? `${searchApiUrl}/api/character/?name=${encodeURIComponent(adjustedSearchTerm)}`
@@ -87,9 +84,9 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
     };
 
     useEffect(() => {
+        setActiveIndex(-1);
         if (adjustedSearchTerm === '') {
             setSuggestions(undefined);
-
         }
     }, [adjustedSearchTerm]);
 
@@ -122,7 +119,6 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
         suggestions,
         activeIndex,
         loading,
-        inputRef,
         onInputChange,
         onKeyDown,
         handleSelect

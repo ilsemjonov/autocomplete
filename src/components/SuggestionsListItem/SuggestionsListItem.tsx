@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { CharacterModel } from "../../models/CharacterModel";
 import Suggestion from "../Suggestion/Suggestion";
 
@@ -15,14 +16,27 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
         suggestion,
         searchTerm,
         isActive,
-        onSelect,
+        onSelect
     } = props;
+
+    const focusedItemRef = useRef<HTMLLIElement>(null);
 
     const ariaSelected = isActive ? "true" : "false";
     const className = isActive ? "active" : ""
 
+    useEffect(() => {
+        if (isActive && focusedItemRef.current) {
+            focusedItemRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center',
+            });
+        }
+    }, [isActive])
+
     return (
         <li
+            ref={focusedItemRef}
             key={suggestion.id}
             role="option"
             tabIndex={0}

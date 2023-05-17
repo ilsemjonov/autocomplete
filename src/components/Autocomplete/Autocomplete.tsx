@@ -17,7 +17,6 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
         suggestions,
         activeIndex,
         loading,
-        inputRef,
         onInputChange,
         onKeyDown,
         handleSelect
@@ -29,7 +28,6 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
             <span />
             <input
                 id='autocomplete-input'
-                ref={inputRef}
                 type='text'
                 placeholder='Search...'
                 value={searchTerm}
