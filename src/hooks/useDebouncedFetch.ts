@@ -35,7 +35,11 @@ export const useDebouncedFetch = <T>(url: string, debounceTime: number): Debounc
             const debounceFetch = () => {
                 if (loadingRef.current) return;
                 if (timeoutId) clearTimeout(timeoutId);
-                timeoutId = setTimeout(fetchData, debounceTime);
+                if (debounceTime) {
+                    timeoutId = setTimeout(fetchData, debounceTime);
+                } else {
+                    fetchData();
+                }
             };
 
             debounceFetch();

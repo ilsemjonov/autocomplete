@@ -9,6 +9,8 @@ const searchApiUrl = process.env.REACT_APP_SEARCH_API_URL;
 interface AutocompleteHookProps {
     onSelect: (selected: CharacterModel) => void;
     formatter?: (value: string) => string;
+    delay?: number;
+    enableHighlight?: boolean;
 }
 
 interface AutocompleteHook {
@@ -19,24 +21,34 @@ interface AutocompleteHook {
     onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
     handleSelect: (selected: CharacterModel) => void;
+    isHighlightEnabled: boolean;
 }
 
 interface Response<T> {
     results: T;
 }
 
-export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: AutocompleteHookProps): AutocompleteHook => {
+export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook => {
+    const {
+        onSelect,
+        formatter = defaultFormatter,
+        delay = 0,
+        enableHighlight: isHighlightEnabled = true
+    } = props;
+
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [suggestions, setSuggestions] = useState<CharacterModel[] | undefined>(undefined);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
     const [urlSearchTerm, setUrlSearchTerm] = useState<string>('');
     const [selectedItem, setSelectedItem] = useState<string>('');
 
-    const encodedUrl = urlSearchTerm && searchTerm !== selectedItem
-        ? `${searchApiUrl}/api/character/?name=${encodeURIComponent(urlSearchTerm)}`
+    const encodedSearchTerm = encodeURIComponent(urlSearchTerm);
+
+    const fetchUrl = urlSearchTerm && searchTerm !== selectedItem
+        ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}`
         : '';
 
-    const { error, loading, data } = useDebouncedFetch<Response<CharacterModel[]>>(encodedUrl, 500);
+    const { error, loading, data } = useDebouncedFetch<Response<CharacterModel[]>>(fetchUrl, delay);
     const { results } = data || {};
 
     const handleSelect = (selected: CharacterModel) => {
@@ -118,6 +130,7 @@ export const useAutocomplete = ({ onSelect, formatter = defaultFormatter }: Auto
         loading,
         onInputChange,
         onKeyDown,
-        handleSelect
+        handleSelect,
+        isHighlightEnabled
     }
 };

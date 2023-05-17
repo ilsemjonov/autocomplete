@@ -10,9 +10,13 @@ const SuggestionsList = lazy(() => import('../SuggestionsList/SuggestionsList'))
 interface AutocompleteProps {
     onSelect: (selected: CharacterModel) => void;
     formatter?: (value: string) => string;
+    delay?: number;
+    enableHighlight?: boolean;
 };
 
-const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
+const Autocomplete: React.FC<AutocompleteProps> = (props) => {
+    const { onSelect, formatter, delay, enableHighlight } = props;
+
     const {
         searchTerm,
         suggestions,
@@ -20,8 +24,9 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
         loading,
         onInputChange,
         onKeyDown,
-        handleSelect
-    } = useAutocomplete({ onSelect, formatter });
+        handleSelect,
+        isHighlightEnabled
+    } = useAutocomplete({ onSelect, formatter, delay, enableHighlight });
 
     return (
         <div className='autocomplete-container'>
@@ -46,6 +51,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
                         activeIndex={activeIndex}
                         onSelect={handleSelect}
                         loading={loading}
+                        isHighlightEnabled={isHighlightEnabled}
                     />
                 </Suspense>
             )}

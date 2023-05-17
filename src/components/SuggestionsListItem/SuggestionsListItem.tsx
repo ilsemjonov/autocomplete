@@ -10,6 +10,7 @@ type SuggestionsListItemProps = {
     searchTerm: string;
     isActive: boolean;
     onSelect: () => void;
+    isHighlightEnabled: boolean;
 };
 
 const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
@@ -17,7 +18,8 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
         suggestion,
         searchTerm,
         isActive,
-        onSelect
+        onSelect,
+        isHighlightEnabled
     } = props;
 
     const focusedItemRef = useRef<HTMLLIElement>(null);
@@ -45,7 +47,11 @@ const SuggestionsListItem: React.FC<SuggestionsListItemProps> = (props) => {
             className={className}
             onClick={onSelect}
         >
-            <Suggestion suggestion={suggestion} searchTerm={searchTerm} />
+            <Suggestion
+                suggestion={suggestion}
+                searchTerm={searchTerm}
+                isHighlightEnabled={isHighlightEnabled}
+            />
         </li>
     );
 };

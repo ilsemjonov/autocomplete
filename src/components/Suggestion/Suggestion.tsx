@@ -6,12 +6,19 @@ import "./Suggestion.css";
 type SuggestionProps = {
     suggestion: CharacterModel;
     searchTerm: string;
+    isHighlightEnabled: boolean;
 };
 
-const Suggestion: React.FC<SuggestionProps> = ({ suggestion, searchTerm }) => {
-    const highlightedName = highlightParts(suggestion.name, searchTerm);
+const Suggestion: React.FC<SuggestionProps> = (props) => {
+    const { suggestion, searchTerm, isHighlightEnabled } = props;
 
-    return <span>{highlightedName}</span>;
+    if (isHighlightEnabled) {
+        const highlightedName = highlightParts(suggestion.name, searchTerm);
+
+        return <span>{highlightedName}</span>;
+    } else {
+        return <span>{suggestion.name}</span>;
+    }
 };
 
 export default Suggestion;

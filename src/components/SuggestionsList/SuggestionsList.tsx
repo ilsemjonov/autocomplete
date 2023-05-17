@@ -11,6 +11,7 @@ type SuggestionsListProps = {
     activeIndex: number;
     onSelect: (selected: CharacterModel) => void;
     loading: boolean;
+    isHighlightEnabled: boolean;
 };
 
 const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
@@ -20,6 +21,7 @@ const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
         activeIndex,
         onSelect,
         loading,
+        isHighlightEnabled
     } = props;
 
     if (!suggestions) return null;
@@ -50,6 +52,7 @@ const SuggestionsList: React.FC<SuggestionsListProps> = (props) => {
                             searchTerm={searchTerm}
                             isActive={index === activeIndex}
                             onSelect={() => onSelect(suggestion)}
+                            isHighlightEnabled={isHighlightEnabled}
                         />
                     ))}
                 </ul>

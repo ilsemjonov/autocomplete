@@ -15,6 +15,8 @@ const App: React.FC = () => {
             <Autocomplete
                 onSelect={handleSelect}
                 formatter={customFormatter}
+                delay={500}
+                enableHighlight={false}
             />
         </div>
     );
