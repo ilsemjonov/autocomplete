@@ -1,8 +1,9 @@
 import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { CharacterModel } from "../models/CharacterModel";
-import { useDebouncedFetch } from "./useDebouncedFetch";
 import { defaultFormatter } from "../functions/defaultFormatter";
+import { useDebouncedAsync } from './useDebouncedAsync';
+import { useAxiosLazyQuery } from './useAxiosLazyQuery';
 
 const searchApiUrl = process.env.REACT_APP_SEARCH_API_URL;
 
@@ -41,34 +42,89 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [suggestions, setSuggestions] = useState<CharacterModel[] | undefined>(undefined);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
-    const [urlSearchTerm, setUrlSearchTerm] = useState<string>('');
     const [selectedItem, setSelectedItem] = useState<string>('');
     const [page, setPage] = useState<number>(1);
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const prevScrollTopRef = useRef<number>(0);
 
-    const encodedSearchTerm = encodeURIComponent(urlSearchTerm);
-
-    const fetchUrl = urlSearchTerm && searchTerm !== selectedItem
-        ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}&page=${page}`
-        : '';
-
-    const { error, loading, data } = useDebouncedFetch<Response<CharacterModel[]>>(fetchUrl, delay);
+    const { loading, error, data, executeFetch } = useAxiosLazyQuery<Response<CharacterModel[]>>();
     const { results } = data || {};
 
-    const handleSelect = (selected: CharacterModel) => {
-        setSearchTerm(selected.name);
-        setSelectedItem(selected.name);
+    const executeDebouncedFetch = useDebouncedAsync(executeFetch, delay);
+
+    useEffect(() => {
+        if (searchTerm !== selectedItem) setSelectedItem('');
+
+        const formattedSearchTerm = searchTerm.toLowerCase().trim();
+        const encodedSearchTerm = encodeURIComponent(formattedSearchTerm);
+        const fetchUrl = formattedSearchTerm && searchTerm !== selectedItem
+            ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}&page=${page}`
+            : '';
+
+        executeDebouncedFetch(fetchUrl);
+    }, [searchTerm, page, selectedItem, executeDebouncedFetch])
+
+    useEffect(() => {
+        if (error && page === 1) {
+            setSuggestions([]);
+        }
+    }, [error, page])
+
+    useEffect(() => {
+        if (results) {
+            setSuggestions((prevSuggestions) => {
+                if (prevSuggestions) {
+                    if (dropdownRef.current) {
+                        dropdownRef.current.scrollTop = prevScrollTopRef.current;
+                    }
+                    return [
+                        ...prevSuggestions,
+                        ...results.sort((a: CharacterModel, b: CharacterModel) =>
+                            a.name.localeCompare(b.name)
+                        ),
+                    ];
+                } else {
+                    return results.sort((a: CharacterModel, b: CharacterModel) =>
+                        a.name.localeCompare(b.name)
+                    );
+                }
+            });
+        }
+    }, [results])
+
+    const resetState = () => {
         setSuggestions(undefined);
+        setActiveIndex(-1);
         setPage(1);
-        onSelect(selected);
-    };
+    }
 
     const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(formatter(event.target.value));
+        const { value } = event.target;
+        const formattedValue = formatter(value);
+
+        resetState();
+        setSearchTerm(formattedValue);
     };
 
+    const handleSelect = (selected: CharacterModel) => {
+        resetState();
+        setSearchTerm(selected.name);
+        setSelectedItem(selected.name);
+        onSelect(selected);
+    };
+    const handleDropdownScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+        const isEndOfScroll = scrollTop && clientHeight && scrollTop + clientHeight === scrollHeight;
+
+        if (isEndOfScroll) {
+            if (prevScrollTopRef.current !== scrollTop) {
+                setPage(prevPage => prevPage + 1);
+                prevScrollTopRef.current = scrollTop;
+            }
+        }
+    }, []);
     const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         switch (event.key) {
             case "Enter":
@@ -103,59 +159,6 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
                 break;
         }
     };
-
-    useEffect(() => {
-        setActiveIndex(-1);
-        setPage(1);
-        setSuggestions(undefined);
-        if (urlSearchTerm === '') {
-            setSuggestions(undefined);
-        }
-    }, [urlSearchTerm]);
-
-    useEffect(() => {
-        setUrlSearchTerm(searchTerm.toLowerCase().trim());
-        if (searchTerm !== selectedItem) setSelectedItem('');
-    }, [searchTerm, selectedItem])
-
-    useEffect(() => {
-        if (error && page === 1) {
-            setSuggestions([]);
-        }
-    }, [error, page])
-
-    useEffect(() => {
-        if (results) {
-            setSuggestions((prevSuggestions) => {
-                if (prevSuggestions) {
-                    if (dropdownRef.current) {
-                        dropdownRef.current.scrollTop = prevScrollTopRef.current;
-                    }
-                    return [
-                        ...prevSuggestions,
-                        ...results.sort((a: CharacterModel, b: CharacterModel) =>
-                            a.name.localeCompare(b.name)
-                        ),
-                    ];
-                } else {
-                    return results.sort((a: CharacterModel, b: CharacterModel) =>
-                        a.name.localeCompare(b.name)
-                    );
-                }
-            });
-        }
-    }, [results])
-
-    const handleDropdownScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-
-        if (scrollTop && clientHeight && scrollTop + clientHeight === scrollHeight) {
-            if (prevScrollTopRef.current !== scrollTop) {
-                setPage(prevPage => prevPage + 1);
-                prevScrollTopRef.current = scrollTop;
-            }
-        }
-    }, []);
 
     return {
         searchTerm,

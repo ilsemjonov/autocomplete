@@ -1,4 +1,4 @@
-import { HIGHLIGHT_REGEX, SPACE_REGEX } from "../utils/regexConstants";
+import { HIGHLIGHT_REGEX, WHITESPACE_REGEX } from "../utils/regexConstants";
 
 export const highlightParts = (name: string, searchTerm: string): React.ReactNode[] => {
     const regex = HIGHLIGHT_REGEX(searchTerm);
@@ -10,7 +10,7 @@ export const highlightParts = (name: string, searchTerm: string): React.ReactNod
             result.push(part);
         } else {
             // Odd parts are matching text
-            const isSpace = SPACE_REGEX.test(part);
+            const isSpace = WHITESPACE_REGEX.test(part);
             const className = isSpace ? '' : 'highlight';
             result.push(<span key={index} className={className}>{part}</span>);
         }
