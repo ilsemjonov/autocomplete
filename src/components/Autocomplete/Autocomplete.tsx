@@ -39,7 +39,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ onSelect, formatter }) => {
                 autoFocus
             />
             {searchTerm && (
-                <Suspense>
+                <Suspense fallback={null}>
                     <SuggestionsList
                         suggestions={suggestions}
                         searchTerm={searchTerm}
