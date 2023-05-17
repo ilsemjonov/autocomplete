@@ -1,6 +1,3 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import Autocomplete from './Autocomplete';
-
 /*
     These tests cover the following scenarios:
 
@@ -8,6 +5,11 @@ import Autocomplete from './Autocomplete';
     - The component allows the user to type and see suggestions
     - The component calls onSelect with the selected suggestion
 */
+
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import axios from 'axios';
+import Autocomplete from './Autocomplete';
 
 describe('Autocomplete', () => {
     const mockOnSelect = jest.fn();
@@ -21,12 +23,10 @@ describe('Autocomplete', () => {
     });
 
     it('allows the user to type and see suggestions', async () => {
-        const mockCharacter = { id: 1, name: 'Rick', "searchTermIndex": 0 };
+        const mockCharacter = { id: 1, name: 'Rick', searchTermIndex: 0 };
         const mockResponse = { results: [mockCharacter] };
-        global.fetch = jest.fn().mockResolvedValueOnce({
-            ok: true,
-            json: () => Promise.resolve(mockResponse),
-        });
+        axios.get = jest.fn().mockResolvedValueOnce({ data: mockResponse });
+
         const { getByLabelText, getByRole, getByText } = render(
             <Autocomplete onSelect={mockOnSelect} />
         );
@@ -34,8 +34,8 @@ describe('Autocomplete', () => {
         const input = getByLabelText('Search for suggestions:');
         fireEvent.change(input, { target: { value: 'Rick' } });
 
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
-        expect(global.fetch).toHaveBeenCalledWith(
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
             'https://rickandmortyapi.com/api/character/?name=rick'
         );
 
@@ -45,19 +45,17 @@ describe('Autocomplete', () => {
     });
 
     it('calls onSelect with the selected suggestion', async () => {
-        const mockCharacter = { id: 1, name: 'Rick', "searchTermIndex": 0 };
+        const mockCharacter = { id: 1, name: 'Rick', searchTermIndex: 0 };
         const mockResponse = { results: [mockCharacter] };
-        global.fetch = jest.fn().mockResolvedValueOnce({
-            ok: true,
-            json: () => Promise.resolve(mockResponse),
-        });
+        axios.get = jest.fn().mockResolvedValueOnce({ data: mockResponse });
+
         const { getByLabelText, getByText } = render(
             <Autocomplete onSelect={mockOnSelect} />
         );
 
         const input = getByLabelText('Search for suggestions:');
         fireEvent.change(input, { target: { value: 'Rick' } });
-        await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
 
         const suggestion = getByText('Rick');
         fireEvent.click(suggestion);
