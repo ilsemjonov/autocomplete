@@ -122,7 +122,7 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         if (error && page === 1) {
             setSuggestions([]);
         }
-    }, [error])
+    }, [error, page])
 
     useEffect(() => {
         if (results) {
