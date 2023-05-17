@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios, { AxiosResponse, AxiosError } from 'axios';
 
 interface DebouncedFetchHook<T> {
@@ -11,7 +11,8 @@ export const useDebouncedFetch = <T>(url: string, debounceTime: number): Debounc
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | AxiosError | null>(null);
     const [data, setData] = useState<T | null>(null);
-    const [prevUrl, setPrevUrl] = useState<string>('');
+
+    const loadingRef = useRef<boolean>(false);
 
     useEffect(() => {
         if (url !== '') {
@@ -32,26 +33,21 @@ export const useDebouncedFetch = <T>(url: string, debounceTime: number): Debounc
             };
 
             const debounceFetch = () => {
-                if (loading) return;
+                if (loadingRef.current) return;
                 if (timeoutId) clearTimeout(timeoutId);
                 timeoutId = setTimeout(fetchData, debounceTime);
             };
 
-            if (url !== prevUrl) {
-                debounceFetch();
-                setPrevUrl(url);
-            }
+            debounceFetch();
 
             return () => {
                 if (timeoutId) {
                     clearTimeout(timeoutId);
                 }
             };
-        } else {
-            setPrevUrl(url);
         }
 
-    }, [url, debounceTime, loading]);
+    }, [url, debounceTime]);
 
     return { loading, error, data };
 };
