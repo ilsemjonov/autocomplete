@@ -20,18 +20,42 @@ import Autocomplete from "../Autocomplete/Autocomplete";
 import { CharacterModel } from "../../models/CharacterModel";
 import { customFormatter } from "../../functions/customFormatter";
 
+const rickAndMortySearchApiUrl = process.env.REACT_APP_RICKANDMORTY_API_URL;
+const starWarsSearchApiUrl = process.env.REACT_APP_STARWARS_API_URL;
+
 const App: React.FC = () => {
+
+    const rickAndMortySearchUrl = `${rickAndMortySearchApiUrl}/api/character/`;
+    const starWarsSearchUrl= `${starWarsSearchApiUrl}/api/people/`
+    
     const handleSelect = (selected: CharacterModel) => {
         console.log(selected);
     };
 
     return (
         <div className="app">
-            <h1>Autocomplete</h1>
+            <h5>Autocomplete with delay, highlighting. Allowed symbols are: numbers, letters, dashes. Endpoint: https://rickandmortyapi.com/api</h5>
             <Autocomplete
+                id='autocomplete-input'
                 onSelect={handleSelect}
+                searchUrl={rickAndMortySearchUrl}
+                searchParameterName='name'
+                paginationParameterName='page'
                 formatter={customFormatter}
-                delay={500}
+                delay={300}
+                enableHighlight
+                placeholder='Search rick & morty characters...'
+                ariaLabel='Search for suggestions'
+            />
+            <h5>Autocomplete without delay, highlighting. All symbols allowed. Endpoint: https://swapi.dev/api</h5>
+            <Autocomplete
+                id='autocomplete-input-2'
+                onSelect={handleSelect}
+                searchUrl={starWarsSearchUrl}
+                searchParameterName='search'
+                paginationParameterName='page'
+                placeholder='Search star wars characters...'
+                ariaLabel='Search for suggestions 2'
             />
         </div>
     );

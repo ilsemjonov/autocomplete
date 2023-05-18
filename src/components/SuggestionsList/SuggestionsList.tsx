@@ -16,6 +16,7 @@ type SuggestionsListProps = {
     isHighlightEnabled: boolean;
     ref?: MutableRefObject<HTMLDivElement | null>;
     handleDropdownScroll: (e: any) => void;
+    isItemSelected: boolean;
 };
 
 const SuggestionsList: React.ForwardRefRenderFunction<
@@ -29,10 +30,11 @@ const SuggestionsList: React.ForwardRefRenderFunction<
         onSelect,
         loading,
         isHighlightEnabled,
-        handleDropdownScroll
+        handleDropdownScroll,
+        isItemSelected
     } = props;
 
-    const isNoResults = suggestions?.length === 0 && !loading;
+    const isNoResults = !isItemSelected && suggestions?.length === 0 && !loading;
 
     return (
         <div ref={ref} className="list-container" onScroll={handleDropdownScroll}>

@@ -8,14 +8,31 @@ import './Autocomplete.css';
 const SuggestionsList = lazy(() => import('../SuggestionsList/SuggestionsList'));
 
 interface AutocompleteProps {
+    id: string;
     onSelect: (selected: CharacterModel) => void;
+    searchUrl: string;
+    searchParameterName: string;
+    paginationParameterName: string;
     formatter?: (value: string) => string;
     delay?: number;
     enableHighlight?: boolean;
+    placeholder?: string;
+    ariaLabel?: string;
 };
 
 const Autocomplete: React.FC<AutocompleteProps> = (props) => {
-    const { onSelect, formatter, delay, enableHighlight } = props;
+    const {
+        id,
+        onSelect,
+        searchUrl,
+        searchParameterName,
+        paginationParameterName,
+        formatter,
+        delay,
+        enableHighlight,
+        placeholder = '',
+        ariaLabel = 'Search input'
+    } = props;
 
     const {
         searchTerm,
@@ -27,22 +44,33 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
         handleSelect,
         isHighlightEnabled,
         dropdownRef,
-        handleDropdownScroll
-    } = useAutocomplete({ onSelect, formatter, delay, enableHighlight });
+        handleDropdownScroll,
+        isItemSelected,
+        inputRef
+    } = useAutocomplete({
+        onSelect,
+        searchUrl,
+        searchParameterName,
+        paginationParameterName,
+        formatter,
+        delay,
+        enableHighlight
+    });
 
     return (
         <div className='autocomplete-container'>
-            <label htmlFor='autocomplete-input'>Search for suggestions:</label>
+            <label htmlFor={id}>{ariaLabel}</label>
             <span />
             <input
-                id='autocomplete-input'
-                type='text'
-                placeholder='Search...'
+                ref={inputRef}
+                id={id}
+                placeholder={placeholder}
                 value={searchTerm}
                 onChange={onInputChange}
                 onKeyDown={onKeyDown}
-                aria-label='Search for suggestions'
-                aria-autocomplete='list'
+                aria-label={ariaLabel}
+                type='text'
+                role="search"
                 autoFocus
             />
             <Suspense fallback={null}>
@@ -55,6 +83,7 @@ const Autocomplete: React.FC<AutocompleteProps> = (props) => {
                     loading={loading}
                     isHighlightEnabled={isHighlightEnabled}
                     handleDropdownScroll={handleDropdownScroll}
+                    isItemSelected={isItemSelected}
                 />
             </Suspense>
         </div>

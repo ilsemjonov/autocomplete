@@ -5,10 +5,11 @@ import { defaultFormatter } from "../functions/defaultFormatter";
 import { useDebouncedAsync } from './useDebouncedAsync';
 import { useAxiosLazyQuery } from './useAxiosLazyQuery';
 
-const searchApiUrl = process.env.REACT_APP_SEARCH_API_URL;
-
 interface AutocompleteHookProps {
     onSelect: (selected: CharacterModel) => void;
+    searchUrl: string;
+    searchParameterName: string;
+    paginationParameterName: string;
     formatter?: (value: string) => string;
     delay?: number;
     enableHighlight?: boolean;
@@ -25,6 +26,8 @@ interface AutocompleteHook {
     isHighlightEnabled: boolean;
     dropdownRef: MutableRefObject<HTMLDivElement | null>;
     handleDropdownScroll: (e: any) => void;
+    isItemSelected: boolean;
+    inputRef: MutableRefObject<HTMLInputElement | null>
 }
 
 interface Response<T> {
@@ -34,9 +37,12 @@ interface Response<T> {
 export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook => {
     const {
         onSelect,
+        searchUrl,
+        searchParameterName,
+        paginationParameterName,
         formatter = defaultFormatter,
         delay = 0,
-        enableHighlight: isHighlightEnabled = true
+        enableHighlight: isHighlightEnabled = false
     } = props;
 
     const [searchTerm, setSearchTerm] = useState<string>('');
@@ -47,11 +53,18 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
 
     const dropdownRef = useRef<HTMLDivElement>(null);
     const prevScrollTopRef = useRef<number>(0);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const { loading, error, data, executeFetch } = useAxiosLazyQuery<Response<CharacterModel[]>>();
     const { results } = data || {};
 
     const executeDebouncedFetch = useDebouncedAsync(executeFetch, delay);
+
+    const resetState = useCallback(() => {
+        setSuggestions(undefined);
+        setActiveIndex(-1);
+        setPage(1);
+    }, [])
 
     useEffect(() => {
         if (searchTerm !== selectedItem) setSelectedItem('');
@@ -59,11 +72,19 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         const formattedSearchTerm = searchTerm.toLowerCase().trim();
         const encodedSearchTerm = encodeURIComponent(formattedSearchTerm);
         const fetchUrl = formattedSearchTerm && searchTerm !== selectedItem
-            ? `${searchApiUrl}/api/character/?name=${encodedSearchTerm}&page=${page}`
+            ? `${searchUrl}?${searchParameterName}=${encodedSearchTerm}&${paginationParameterName}=${page}`
             : '';
 
         executeDebouncedFetch(fetchUrl);
-    }, [searchTerm, page, selectedItem, executeDebouncedFetch])
+    }, [
+        searchTerm,
+        page,
+        selectedItem,
+        executeDebouncedFetch,
+        searchUrl,
+        searchParameterName,
+        paginationParameterName
+    ])
 
     useEffect(() => {
         if (error && page === 1) {
@@ -93,11 +114,19 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         }
     }, [results])
 
-    const resetState = () => {
-        setSuggestions(undefined);
-        setActiveIndex(-1);
-        setPage(1);
-    }
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+                resetState();
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [resetState]);
 
     const onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
@@ -113,6 +142,7 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         setSelectedItem(selected.name);
         onSelect(selected);
     };
+
     const handleDropdownScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
@@ -152,8 +182,7 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
                 break;
             case "Escape":
                 event.preventDefault();
-                setSuggestions(undefined);
-                setActiveIndex(-1);
+                resetState();
                 break;
             default:
                 break;
@@ -170,6 +199,8 @@ export const useAutocomplete = (props: AutocompleteHookProps): AutocompleteHook 
         handleSelect,
         isHighlightEnabled,
         dropdownRef,
-        handleDropdownScroll
+        handleDropdownScroll,
+        isItemSelected: !!selectedItem,
+        inputRef
     }
 };

@@ -18,8 +18,16 @@ describe('Autocomplete', () => {
     });
 
     it('renders the input and label', () => {
-        const { getByLabelText } = render(<Autocomplete onSelect={mockOnSelect} />);
-        expect(getByLabelText('Search for suggestions:')).toBeInTheDocument();
+        const { getByRole } = render(
+            <Autocomplete
+                id='autocomplete-input'
+                onSelect={mockOnSelect}
+                searchUrl='https://rickandmortyapi.com/api/character/'
+                searchParameterName='name'
+                paginationParameterName='page'
+            />
+        );
+        expect(getByRole('search')).toBeInTheDocument();
     });
 
     it('allows the user to type and see suggestions', async () => {
@@ -27,11 +35,17 @@ describe('Autocomplete', () => {
         const mockResponse = { results: [mockCharacter] };
         axios.get = jest.fn().mockResolvedValueOnce({ data: mockResponse });
 
-        const { getByLabelText, getByRole, getByText } = render(
-            <Autocomplete onSelect={mockOnSelect} />
+        const { getByRole, getByText } = render(
+            <Autocomplete
+                id='autocomplete-input'
+                onSelect={mockOnSelect}
+                searchUrl='https://rickandmortyapi.com/api/character/'
+                searchParameterName='name'
+                paginationParameterName='page'
+            />
         );
 
-        const input = getByLabelText('Search for suggestions:');
+        const input = getByRole('search');
         fireEvent.change(input, { target: { value: 'Rick' } });
 
         await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
@@ -49,11 +63,17 @@ describe('Autocomplete', () => {
         const mockResponse = { results: [mockCharacter] };
         axios.get = jest.fn().mockResolvedValueOnce({ data: mockResponse });
 
-        const { getByLabelText, getByText } = render(
-            <Autocomplete onSelect={mockOnSelect} />
+        const { getByRole, getByText } = render(
+            <Autocomplete
+                id='autocomplete-input'
+                onSelect={mockOnSelect}
+                searchUrl='https://rickandmortyapi.com/api/character/'
+                searchParameterName='name'
+                paginationParameterName='page'
+            />
         );
 
-        const input = getByLabelText('Search for suggestions:');
+        const input = getByRole('search');
         fireEvent.change(input, { target: { value: 'Rick' } });
         await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
 
